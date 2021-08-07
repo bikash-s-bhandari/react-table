@@ -1,24 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Youtubeform from "./components/Youtubeform";
+import { Container, Pagination, Row } from "react-bootstrap";
+import FormikContainer from "./components/ResuableComponent/FormikContainer";
+import BasicTable from "./components/Table/BasicTable";
+import SortingTable from "./components/Table/SortingTable";
+import FilteringTable from "./components/Table/FilteringTable";
+import PaginationTable from "./components/Table/PaginationTable";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Row>
+        {/* <Youtubeform /> */}
+        {/* <FormikContainer /> */}
+        {/* <BasicTable /> */}
+        {/* <SortingTable /> */}
+        {/* <FilteringTable /> */}
+        <PaginationTable />
+      </Row>
+    </Container>
   );
 }
 

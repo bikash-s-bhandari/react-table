@@ -1,0 +1,371 @@
+step1. Create columns array
+export const columns = [
+  {
+    Header: "id",
+    accessor: "id",
+  },
+  {
+    Header: "First Name",
+    accessor: "first_name",
+  },
+  {
+    Header: "Last Name",
+    accessor: "last_name",
+  },
+  {
+    Header: "Date Of Birth",
+    accessor: "date_od_birth",
+  },
+];
+
+step2:create table instance
+  const columns = useMemo(() => COLUMNS, []);
+  const data = useMemo(() => MockData, []); //useMemo ensure that data isnt re-create in every render
+  //calling useTable Hooks
+  const tableInstance = useTable({
+    columns,
+    data,
+  });
+   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
+
+->getTableProps should destracture in table tag  <table {...getTableProps()}>
+->getTableBodyProps should destracture in <tbody> tag  <tbody {...getTableBodyProps()}>
+->headerGroups contains table heading information (ie, id,first_name etc), this should map inside <thead> tag
+<thead>
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column) => (
+              <th {...column.getHeaderProps()}>{column.render("Header")}</th> //columns array ko Header leko
+            ))}
+          </tr>
+        ))}
+</thead>
+->rows go inside <tbody> tag for rendering list of elements
+
+<tbody {...getTableBodyProps()}>
+        {rows.map((row) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map((cell) => {
+                return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+              })}
+            </tr>
+          );
+        })}
+</tbody>
+
+3.Add Footer In Table (Footer Groups)
+export const COLUMNS = [
+  {
+    Header: "id",
+    Footer: "id",//Add Footer here
+    accessor: "id",
+  },
+  {
+    Header: "First Name",
+    Footer: "First Name",
+    accessor: "first_name",
+  },
+  {
+    Header: "Last Name",
+    Footer: "Last Name",
+    accessor: "last_name",
+  },
+]
+ const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    footerGroups,
+  } = tableInstance;
+
+ <tfoot>
+        {footerGroups.map((footerGroup) => (
+          <tr {...footerGroup.getFooterGroupProps()}>
+            {footerGroup.headers.map((column) => (
+              <td {...column.getFooterProps()}>{column.render("Footer")}</td>
+            ))}
+          </tr>
+        ))}
+</tfoot>
+
+4.Header Groups
+export const GROUPED_COLUMNS = [
+  {
+    Header: "id",
+    Footer: "id",
+    accessor: "id",
+  },
+  {
+    Header: "Name",
+    Footer: "Name",
+    columns: [
+      {
+        Header: "First Name",
+        Footer: "First Name",
+        accessor: "first_name",
+      },
+      {
+        Header: "Last Name",
+        Footer: "Last Name",
+        accessor: "last_name",
+      },
+    ],
+  },
+  {
+    Header: "Info",
+    Footer: "Info",
+    columns: [
+      {
+        Header: "Date Of Birth",
+        Footer: "Date Of Birth",
+        accessor: "date_od_brith",
+      },
+      {
+        Header: "Country",
+        Footer: "Country",
+        accessor: "country",
+      },
+      {
+        Header: "Phone",
+        Footer: "Phone",
+        accessor: "phone",
+      },
+    ],
+  },
+];
+const columns = useMemo(() => GROUPED_COLUMNS, []);
+
+5.Sorting Table
+->create SortingTable.js
+
+->import { useTable, useSortBy } from "react-table";
+-> const tableInstance = useTable(
+    {
+      columns,
+      data,
+    },
+    useSortBy
+  );
+   <thead>
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column) => (
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                {column.render("Header")}
+                <span>
+                  {column.isSorted ? (column.isSortedDesc ? "down" : "up") : ""}//icons here
+                </span>
+              </th>
+            ))}
+          </tr>
+        ))}
+</thead>
+
+5.Sorting and Formating Columns
+->for formatting columns use Cell property
+ {
+    Header: "Date Of Birth",
+    Footer: "Date Of Birth",
+    accessor: "date_od_brith",
+    Cell: ({ value }) => {
+      return format(new Date(value), "dd/MM/yyyy");
+    },
+  },
+
+
+  6.Filtering
+  a.Global Filtering (Applied to all columns in table )
+  ->Text search garda table ko sabai columns ma value match garxa
+  b.Columns Filtering (Applied to only that perticular column conatin the search text)
+->text search grada perticular columns ma seach garxa eg. like first_name bata matra search garnu prepareRow
+//in GlobalFilter.js
+import React from "react";
+
+const GlobalFilter = ({ filter, setFilter }) => {
+  //filter is value of searched text field and setFilter is setter function
+  return (
+    <span>
+      Search:{" "}
+      <input value={filter || ""} onChange={(e) => setFilter(e.target.value)} />{" "}
+    </span>
+  );
+};
+
+export default GlobalFilter;
+
+//in FilteringTable.js
+const tableInstance = useTable(
+    {
+      columns,
+      data,
+    },
+    useGlobalFilter
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state,//required for global filter
+    setGlobalFilter,//required for global filter
+    footerGroups,
+  } = tableInstance;
+
+  const { globalFilter } = state;
+  jsx:
+ <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+
+ b.Column Filter
+ in ColumnFilter.js
+ import React from "react";
+
+const ColumnFilter = ({ column }) => {
+  const { filterValue, setFilter } = column;
+  return (
+    <span>
+      Search:{" "}
+      <input
+        value={filterValue || ""}
+        onChange={(e) => setFilter(e.target.value)}
+      />{" "}
+    </span>
+  );
+};
+
+export default ColumnFilter;
+
+in FilteringTable.js
+import { useTable, useGlobalFilter, useFilters } from "react-table";
+const tableInstance = useTable(
+    {
+      columns,
+      data,
+    },
+    useFilters,//for column filter
+    useGlobalFilter//for global filter
+  );
+   <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps()}>
+                  {column.render("Header")}
+                  <div>{column.canFilter ? column.render("Filter") : null}</div>//Filter comes form Columns.js
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+
+in Columns.js
+import ColumnFilter from "./ColumnFilter";
+export const COLUMNS = [
+  {
+    Header: "id",
+    Footer: "id",
+    accessor: "id",
+    Filter: ColumnFilter,//for column filter,
+    disableFilters: true, //for not applying filters in ID columns
+  },
+  {
+    Header: "First Name",
+    Footer: "First Name",
+    accessor: "first_name",
+    Filter: ColumnFilter,
+  },
+  {
+    Header: "Last Name",
+    Footer: "Last Name",
+    accessor: "last_name",
+    Filter: ColumnFilter,
+  }]
+
+  Adding DefaultColumn for filter
+  //in FilteringTable.js
+  import ColumnFilter from "./ColumnFilter";
+    const defaultColumn = useMemo(() => {
+    return { Filter: ColumnFilter };
+  }, []);
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+      defaultColumn,//adding defaultColumn filter
+    },
+    useFilters,
+    useGlobalFilter
+  );
+
+  Now we dont need to add Filter column in Columns.js
+  export const COLUMNS = [
+  {
+    Header: "id",
+    Footer: "id",
+    accessor: "id",
+    // Filter: ColumnFilter,//no need this becoz we use defaultColumn
+    disableFilters: true, //for not applying filters in ID columns
+  },
+  {
+    Header: "First Name",
+    Footer: "First Name",
+    accessor: "first_name",
+    // Filter: ColumnFilter,
+  },
+  {
+    Header: "Last Name",
+    Footer: "Last Name",
+    accessor: "last_name",
+    // Filter: ColumnFilter,
+  },
+  ]
+
+  Adding Dbouncing to Gloabl Filter
+  import React, { useState } from "react";
+import { useAsyncDebounce } from "react-table";
+
+const GlobalFilter = ({ filter, setFilter }) => {
+
+  const [value, setvalue] = useState(filter);
+  const onChange = useAsyncDebounce((value) => {//search text type garda 1 second paxi matra search hune banako, not immeditaley
+
+    setFilter(value || undefined);
+  }, 1000);
+  return (
+    <span>
+      Search:{" "}
+      <input
+        value={value || ""}
+        onChange={(e) => {
+          setvalue(e.target.value);
+          onChange(e.target.value);
+        }}
+      />{" "}
+    </span>
+  );
+};
+
+export default GlobalFilter;
+
+
+
+
+7.Pagination (PaginationTable.js)
+
+
+    page,
+    nextPage:for going to next page 1 step ahead
+    previousPage: for going to previousPage 1 step behind
+    canNextPage: if next page ma data xa vane true hunxa otherwise false
+    canPreviousPage:if previous page ma data xa vane true hunxa otherwise false
+    pageOptions:Gives total number of page
+    state:const { pageIndex, pageSize } = state;
+    gotoPage: ekai choti first or last page ma lagna sakxa,, desire page ma move garxa
+    pageCount,
+    setPageSize,
