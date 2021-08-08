@@ -369,3 +369,72 @@ export default GlobalFilter;
     gotoPage: ekai choti first or last page ma lagna sakxa,, desire page ma move garxa
     pageCount,
     setPageSize,
+
+
+    8.Selecting Rows (RowSelection.js)
+    ->create Checkbox.js
+    ->Remove strict mode from index.js
+    <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+    },
+    useRowSelect,//for multiple selected rows purpose
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => {
+        return [
+          {
+            id: "selection",
+            Header: ({ getToggleAllRowsSelectedProps }) => (
+              <Checkbox {...getToggleAllRowsSelectedProps()} />
+            ),
+            Cell: ({ row }) => (
+              <Checkbox {...row.getToggleRowSelectedProps()} />
+            ),
+          },
+          ...columns,
+        ];
+      });
+    }
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    footerGroups,
+    selectedFlatRows, //for row selection while multiple delete etc
+  } = tableInstance;
+
+  9.Column Ordering (ColumnOrder.js)
+  10.Column Hiding (ColumnHiding.js)
+  11.Sticky Columns (StickyColumns.js)
+  ->yarn add react-table-sticky
+  ->yarn add styled-component
+  create TableStyles.js
+
+
+  in Columns.js
+  export const COLUMNS = [
+  {
+    Header: "id",
+    Footer: "id",
+    accessor: "id",
+
+
+    sticky: "left", //for sticky columns
+  },
+  {
+    Header: "First Name",
+    Footer: "First Name",
+    accessor: "first_name",
+  
+    sticky: "left",
+  },
+  ]

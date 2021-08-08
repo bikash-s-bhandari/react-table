@@ -7,18 +7,21 @@ export const COLUMNS = [
     accessor: "id",
     // Filter: ColumnFilter,
     disableFilters: true, //for not applying filters in ID columns
+    sticky: "left", //for sticky columns
   },
   {
     Header: "First Name",
     Footer: "First Name",
     accessor: "first_name",
     // Filter: ColumnFilter,
+    sticky: "left",
   },
   {
     Header: "Last Name",
     Footer: "Last Name",
     accessor: "last_name",
     // Filter: ColumnFilter,
+    sticky: "left",
   },
   {
     Header: "Date Of Birth",
